@@ -1,0 +1,389 @@
+-- ==========================================
+-- STEAL AN EGG: PROFESSIONAL EDITION V10
+-- ANTI-LAG POTATO MODE & MOBILE TOUCH FIX
+-- ==========================================
+
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local player = Players.LocalPlayer
+
+local uiParent = (gethui and gethui()) or CoreGui or player:WaitForChild("PlayerGui")
+if uiParent:FindFirstChild("StealAnEggHub_UI") then
+    uiParent.StealAnEggHub_UI:Destroy()
+end
+
+-- ==========================================
+-- UI GENERATION
+-- ==========================================
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "StealAnEggHub_UI"
+screenGui.Parent = uiParent
+screenGui.IgnoreGuiInset = true
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 420, 0, 430)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -215)
+mainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Parent = screenGui
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", mainFrame).Color = Color3.fromRGB(88, 101, 242)
+Instance.new("UIStroke", mainFrame).Thickness = 2
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 45)
+titleLabel.BackgroundColor3 = Color3.fromRGB(24, 24, 35)
+titleLabel.Text = "    ⚡ STEAL AN EGG | AUTO V10 (POTATO MODE)"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 14
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = mainFrame
+Instance.new("UICorner", titleLabel).CornerRadius = UDim.new(0, 10)
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 35, 0, 35)
+closeBtn.Position = UDim2.new(1, -40, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.Parent = mainFrame
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+
+local floatLogo = Instance.new("TextButton")
+floatLogo.Size = UDim2.new(0, 50, 0, 50)
+floatLogo.Position = UDim2.new(0, 20, 0.5, -25)
+floatLogo.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+floatLogo.Text = "EGG"
+floatLogo.TextColor3 = Color3.fromRGB(255, 255, 255)
+floatLogo.Visible = false
+floatLogo.Active = true
+floatLogo.Parent = screenGui
+Instance.new("UICorner", floatLogo).CornerRadius = UDim.new(1, 0)
+
+local function MakeDraggable(topbarObject, object)
+    local Dragging, DragInput, DragStart, StartPosition
+    topbarObject.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            Dragging = true; DragStart = input.Position; StartPosition = object.Position
+            input.Changed:Connect(function() 
+                if input.UserInputState == Enum.UserInputState.End then Dragging = false end 
+            end)
+        end
+    end)
+    topbarObject.InputChanged:Connect(function(input) 
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then 
+            DragInput = input 
+        end 
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == DragInput and Dragging then
+            local delta = input.Position - DragStart
+            object.Position = UDim2.new(StartPosition.X.Scale, StartPosition.X.Offset + delta.X, StartPosition.Y.Scale, StartPosition.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+MakeDraggable(titleLabel, mainFrame)
+MakeDraggable(floatLogo, floatLogo)
+
+closeBtn.Activated:Connect(function() mainFrame.Visible = false; floatLogo.Visible = true end)
+floatLogo.Activated:Connect(function() mainFrame.Visible = true; floatLogo.Visible = false end)
+
+-- UI Components
+local toggle1Btn = Instance.new("TextButton", mainFrame)
+toggle1Btn.Size = UDim2.new(0, 380, 0, 45)
+toggle1Btn.Position = UDim2.new(0.5, -190, 0, 60)
+toggle1Btn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+toggle1Btn.Text = "1. AUTO STEAL & RETURN [OFF]"
+toggle1Btn.TextColor3 = Color3.fromRGB(255, 90, 90)
+toggle1Btn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", toggle1Btn).CornerRadius = UDim.new(0, 6)
+
+local espBtn = Instance.new("TextButton", mainFrame)
+espBtn.Size = UDim2.new(0, 380, 0, 45)
+espBtn.Position = UDim2.new(0.5, -190, 0, 115)
+espBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+espBtn.Text = "2. ESP SECRET EGG [OFF]"
+espBtn.TextColor3 = Color3.fromRGB(255, 90, 90)
+espBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", espBtn).CornerRadius = UDim.new(0, 6)
+
+local speedInput = Instance.new("TextBox", mainFrame)
+speedInput.Size = UDim2.new(0, 270, 0, 45)
+speedInput.Position = UDim2.new(0.5, -190, 0, 175)
+speedInput.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+speedInput.Text = "16"
+speedInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedInput.Font = Enum.Font.GothamBold
+speedInput.ClearTextOnFocus = false
+Instance.new("UICorner", speedInput).CornerRadius = UDim.new(0, 6)
+
+local setSpeedBtn = Instance.new("TextButton", mainFrame)
+setSpeedBtn.Size = UDim2.new(0, 100, 0, 45)
+setSpeedBtn.Position = UDim2.new(0.5, 90, 0, 175)
+setSpeedBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+setSpeedBtn.Text = "SET SPEED"
+setSpeedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+setSpeedBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", setSpeedBtn).CornerRadius = UDim.new(0, 6)
+
+-- ปุ่มฟังก์ชันลบแล็กขั้นสุด (Ultimate Potato Mode)
+local potatoBtn = Instance.new("TextButton", mainFrame)
+potatoBtn.Size = UDim2.new(0, 380, 0, 45)
+potatoBtn.Position = UDim2.new(0.5, -190, 0, 235)
+potatoBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+potatoBtn.Text = "4. ULTIMATE POTATO MODE [OFF]"
+potatoBtn.TextColor3 = Color3.fromRGB(255, 90, 90)
+potatoBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", potatoBtn).CornerRadius = UDim.new(0, 6)
+
+local credit = Instance.new("TextLabel", mainFrame)
+credit.Size = UDim2.new(1, 0, 0, 30)
+credit.Position = UDim2.new(0, 0, 1, -30)
+credit.BackgroundTransparency = 1
+credit.Text = "V10: ULTIMATE POTATO MODE & NO LAG GLOBAL"
+credit.TextColor3 = Color3.fromRGB(100, 100, 130)
+credit.Font = Enum.Font.GothamItalic
+
+-- ==========================================
+-- CORE LOGIC
+-- ==========================================
+local autoSecretActive = false
+local espActive = false
+local potatoActive = false
+local targetSpeed = 16
+local basePosition = nil 
+local currentTween = nil 
+
+local function isRealSecretEgg(obj)
+    if not (obj:IsA("Model") or obj:IsA("BasePart")) then return false end
+    local n = string.lower(obj.Name)
+    if not (string.find(n, "secret") or string.find(n, "divine") or string.find(n, "mythic") or string.find(n, "egg")) then return false end
+    local root = obj:IsA("BasePart") and obj or obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+    if not root or root.Transparency >= 1 then return false end
+    return true
+end
+
+local function GetClosestEgg()
+    local char = player.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+    local hrp = char.HumanoidRootPart
+    local closestEgg, shortestDist = nil, math.huge
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if isRealSecretEgg(obj) then
+            local root = obj:IsA("BasePart") and obj or obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+            if root then
+                local dist = (hrp.Position - root.Position).Magnitude
+                if dist < shortestDist then 
+                    shortestDist = dist
+                    closestEgg = obj 
+                end
+            end
+        end
+    end
+    return closestEgg
+end
+
+local function SafeTeleport(targetCFrame)
+    local char = player.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    local hrp = char.HumanoidRootPart
+    if currentTween then currentTween:Cancel() end
+    local dist = (hrp.Position - targetCFrame.Position).Magnitude
+    local duration = dist / 150
+    if duration < 0.05 then 
+        hrp.CFrame = targetCFrame
+        return 
+    end
+    currentTween = TweenService:Create(hrp, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
+    currentTween:Play()
+    currentTween.Completed:Wait()
+end
+
+-- ==========================================
+-- ฟังก์ชันลบแล็กขั้นสุด (POTATO MODE FUNCTION)
+-- ==========================================
+local function ApplyPotatoMode()
+    pcall(function()
+        -- 1. ลบ Texture, ลบแสงสี, ปรับทุกอย่างเป็น Smooth Plastic สีเทาด้าน
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") and not v:IsDescendantOf(player.Character) then
+                -- เช็คไม่ให้ไปลบตัวแปรสำคัญหรือตัวไข่
+                if not isRealSecretEgg(v) and not isRealSecretEgg(v.Parent) then
+                    v.Material = Enum.Material.SmoothPlastic
+                    v.Color = Color3.fromRGB(120, 120, 120) -- พื้นผิวสีเทา
+                    v.CastShadow = false
+                    if v:IsA("MeshPart") then 
+                        v.TextureID = "" 
+                    end
+                end
+            elseif v:IsA("Texture") or v:IsA("Decal") or v:IsA("ShirtGraphic") then
+                v:Destroy()
+            elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Sparkles") or v:IsA("Fire") then
+                v.Enabled = false
+            end
+        end
+
+        -- 2. ย้อมสีตัวละครของผู้เล่นทุกคนรวมถึงเราให้เป็นสีเทาล้วน
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p.Character then
+                for _, part in ipairs(p.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.Color = Color3.fromRGB(80, 80, 80) -- ตัวละครสีเทาเข้มขึ้นมาหน่อย
+                        part.Material = Enum.Material.SmoothPlastic
+                    elseif part:IsA("Accessory") or part:IsA("Clothing") or part:IsA("CharacterMesh") or part:IsA("FaceControls") then
+                        part:Destroy() -- ลบชุดและทรงผมทิ้งเพื่อลดความแล็ก
+                    end
+                end
+            end
+        end
+
+        -- 3. ปิดเอฟเฟกต์ท้องฟ้าและเงาในเกม
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        for _, effect in ipairs(Lighting:GetChildren()) do
+            if effect:IsA("PostEffect") or effect:IsA("Atmosphere") or effect:IsA("Sky") then
+                effect:Destroy()
+            end
+        end
+    end)
+end
+
+-- ==========================================
+-- BUTTON CONNECTIONS
+-- ==========================================
+toggle1Btn.Activated:Connect(function()
+    autoSecretActive = not autoSecretActive
+    toggle1Btn.Text = autoSecretActive and "1. AUTO STEAL & RETURN [ON]" or "1. AUTO STEAL & RETURN [OFF]"
+    toggle1Btn.BackgroundColor3 = autoSecretActive and Color3.fromRGB(40, 160, 90) or Color3.fromRGB(35, 35, 50)
+    toggle1Btn.TextColor3 = autoSecretActive and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(255, 90, 90)
+    
+    if autoSecretActive then
+        local char = player.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then 
+            basePosition = char.HumanoidRootPart.CFrame 
+        end
+    else
+        if currentTween then currentTween:Cancel() end
+    end
+end)
+
+espBtn.Activated:Connect(function()
+    espActive = not espActive
+    espBtn.Text = espActive and "2. ESP SECRET EGG [ON]" or "2. ESP SECRET EGG [OFF]"
+    espBtn.BackgroundColor3 = espActive and Color3.fromRGB(40, 160, 90) or Color3.fromRGB(35, 35, 50)
+    espBtn.TextColor3 = espActive and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(255, 90, 90)
+    
+    if not espActive then
+        for _, obj in pairs(workspace:GetDescendants()) do 
+            if obj:IsA("Highlight") and obj.Name == "Egg_ESP_V10" then 
+                obj:Destroy() 
+            end 
+        end
+    end
+end)
+
+setSpeedBtn.Activated:Connect(function()
+    local num = tonumber(speedInput.Text:gsub("%D", ""))
+    if num then 
+        targetSpeed = num 
+        speedInput.Text = tostring(targetSpeed) 
+    end
+end)
+
+potatoBtn.Activated:Connect(function()
+    potatoActive = not potatoActive
+    potatoBtn.Text = potatoActive and "4. ULTIMATE POTATO MODE [ON]" or "4. ULTIMATE POTATO MODE [OFF]"
+    potatoBtn.BackgroundColor3 = potatoActive and Color3.fromRGB(40, 160, 90) or Color3.fromRGB(35, 35, 50)
+    potatoBtn.TextColor3 = potatoActive and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(255, 90, 90)
+    
+    if potatoActive then
+        ApplyPotatoMode()
+    end
+end)
+
+-- ==========================================
+-- MAIN LOOPS
+-- ==========================================
+
+-- ลูปจัดการเรื่องความเร็วและสแกนลบแล็กซ้ำเมื่อมีวัตถุใหม่เกิด
+task.spawn(function()
+    while true do
+        task.wait(1)
+        pcall(function()
+            local char = player.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if hum and hum.WalkSpeed ~= targetSpeed and not autoSecretActive then
+                hum.WalkSpeed = targetSpeed
+            end
+            -- หากเปิดโหมดมันฝรั่งไว้ ให้ลบสิ่งแปลกปลอมที่เกิดใหม่เรื่อยๆ
+            if potatoActive then 
+                ApplyPotatoMode() 
+            end
+        end)
+    end
+end)
+
+-- ลูปหลักฟาร์มอัตโนมัติ (Auto Steal Loop)
+task.spawn(function()
+    while true do
+        task.wait(0.2)
+        if autoSecretActive and basePosition then
+            pcall(function()
+                local egg = GetClosestEgg()
+                if egg then
+                    local root = egg:IsA("BasePart") and egg or egg.PrimaryPart or egg:FindFirstChildWhichIsA("BasePart")
+                    if root then
+                        SafeTeleport(root.CFrame)
+                        task.wait(0.1)
+                        if firetouchinterest then
+                            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                firetouchinterest(hrp, root, 0)
+                                task.wait(0.02)
+                                firetouchinterest(hrp, root, 1)
+                            end
+                        end
+                        local prompt = egg:FindFirstChildWhichIsA("ProximityPrompt", true)
+                        if prompt and fireproximityprompt then 
+                            fireproximityprompt(prompt) 
+                        end
+                        task.wait(0.1)
+                        SafeTeleport(basePosition)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- ลูประบบ ESP
+task.spawn(function()
+    while true do
+        task.wait(3)
+        if espActive then
+            pcall(function()
+                for _, obj in ipairs(workspace:GetDescendants()) do
+                    if isRealSecretEgg(obj) then
+                        local root = obj:IsA("BasePart") and obj or obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                        if root and not root:FindFirstChild("Egg_ESP_V10") then
+                            local highlight = Instance.new("Highlight")
+                            highlight.Name = "Egg_ESP_V10"
+                            highlight.FillColor = Color3.fromRGB(138, 43, 226)
+                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                            highlight.FillTransparency = 0.4
+                            highlight.Parent = root
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
